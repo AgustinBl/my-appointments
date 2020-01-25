@@ -19,18 +19,20 @@ Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
 
-Auth::routes();
+// Specialty
 
-Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/specialties', 'SpecialtyController@index');
+Route::get('/specialties/create', 'SpecialtyController@create'); // form registro
+Route::get('/specialties/{specialty}/edit', 'SpecialtyController@edit');
 
-Auth::routes();
+Route::post('/specialties', 'SpecialtyController@store'); // envio del form
+Route::put('/specialties/{specialty}', 'SpecialtyController@update');
+Route::delete('/specialties/{specialty}', 'SpecialtyController@destroy');
 
-Route::get('/home', 'HomeController@index')->name('home');
+// Doctors
 
-Auth::routes();
+Route::resource('doctors', 'DoctorController');
 
-Route::get('/home', 'HomeController@index')->name('home');
 
-Auth::routes();
+// Patients
 
-Route::get('/home', 'HomeController@index')->name('home');
