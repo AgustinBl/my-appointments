@@ -21,9 +21,9 @@ class CreateUsersTable extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
 
-            $table->string('dni')->
+            $table->string('dni');
 
-            $table->string('adress')->nullable();
+            $table->string('address')->nullable();
             $table->string('phone')->nullable();
 
             $table->string('role'); // 'admin', 'patient', 'doctor'
