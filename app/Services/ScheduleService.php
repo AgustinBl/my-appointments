@@ -35,7 +35,7 @@ class ScheduleService implements ScheduleServiceInterface
     		'afternoon_end'
     	]);
 
-       if(!$workDay){
+       if($workDay){
         
             $morningIntervals = $this->getIntervals(
                 $workDay->morning_start, $workDay->morning_end, $date, $doctorId
