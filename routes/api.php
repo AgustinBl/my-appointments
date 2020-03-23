@@ -12,6 +12,7 @@
 */
 
 Route::post('/login', 'AuthController@login');
+Route::post('/register', 'AuthController@register');
 	
 // Public resoruces
 Route::get('/specialties','SpecialtyController@index');
