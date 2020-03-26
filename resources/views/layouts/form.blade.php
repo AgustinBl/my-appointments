@@ -79,7 +79,7 @@
               <h1 class="text-white">
                 @yield('title', 'Welcome!')
               </h1>
-              <p class="text-lead text-light">Use these awesome forms to login or create new account in your project for free.</p>
+              <p class="text-lead text-light">Usa el siguiente formulario para logearte o simplemente registrarte!</p>
             </div>
           </div>
         </div>
