@@ -19,8 +19,8 @@ class UserController extends Controller
     {
     	$user = Auth::guard('api')->user();
     	$user->name = $request->name;
-    	$user->name = $request->phone;
-    	$user->name = $request->address;
+    	$user->phone = $request->phone;
+    	$user->address = $request->address;
     	$user->save();
 
     	JwtAuth::clearCache($user);
