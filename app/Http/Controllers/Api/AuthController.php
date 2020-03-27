@@ -37,10 +37,10 @@ class AuthController extends Controller
 
 	public function logout()
 	{
-		$user = Auth::guard('api')->user();
-		$user->device_token = null;
-		$user->save();
-		JwtAuth::clearCache($user);
+		//$user = Auth::guard('api')->user();
+		//$user->device_token = null;
+		//$user->save();
+		//JwtAuth::clearCache($user);
 		Auth::guard('api')->logout();
 		$success = true;
 		return compact('success');
