@@ -77,7 +77,15 @@ docker compose down -v
 
 # Reconstruir imágenes
 docker compose build --no-cache
+
+# Recompilar assets (solo si editaste resources/js o resources/sass)
+docker compose run --rm node
 ```
+
+> El servicio `node` no arranca con `docker compose up`: si el build de
+> webpack falla, igual sobrescribe los assets ya compilados de `public/`.
+> Se ejecuta a propósito con el comando de arriba. Si un build sale mal,
+> `git checkout -- public/` restaura los assets que funcionaban.
 
 ## Estructura de servicios
 
@@ -87,7 +95,7 @@ docker compose build --no-cache
 | `app` | `php:7.4-fpm` | `9000` | PHP-FPM con Composer |
 | `mysql` | `mysql:5.7` | `3306` | Base de datos |
 | `redis` | `redis:alpine` | `6379` | Cache y sesiones |
-| `node` | `node:16-alpine` | - | Compilación de assets |
+| `node` | `node:16-alpine` | - | Compilación de assets (bajo demanda, no arranca solo) |
 
 ## Notas
 

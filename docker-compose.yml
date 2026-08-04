@@ -68,7 +68,8 @@ services:
 
   # No arranca con `docker compose up`: un build fallido sobrescribe los
   # assets ya compilados de public/. Para recompilar, a proposito:
-  #   docker compose --profile assets run --rm node
+  #   docker compose run --rm node
+  # (nombrar el servicio habilita su profile solo, sin pasar --profile)
   node:
     image: node:16-alpine
     container_name: my-appointments-node
