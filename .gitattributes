@@ -1,4 +1,10 @@
 * text=auto
+
+# Estos archivos los consume Linux dentro de los contenedores: con CRLF
+# el shebang de entrypoint.sh se rompe ("bad interpreter").
+*.sh text eol=lf
+Dockerfile* text eol=lf
+*.conf text eol=lf
 *.css linguist-vendored
 *.scss linguist-vendored
 *.js linguist-vendored
