@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y \
     libwebp-dev \
     libmcrypt-dev \
     libpq-dev \
-    && docker-php-ext-install pdo_mysql mbstring xml bcmath zip pcntl \
+    && docker-php-ext-install pdo_mysql mbstring xml bcmath zip pcntl opcache \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install gd \
     && pecl install redis \
@@ -20,5 +20,7 @@ RUN apt-get update && apt-get install -y \
 # Composer 1: laravel/framework v6.18.1 no soporta el formato de
 # vendor/composer/installed.json que genera Composer 2 (falla package:discover).
 COPY --from=composer:1.10 /usr/bin/composer /usr/bin/composer
+
+COPY php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 
 WORKDIR /var/www/html

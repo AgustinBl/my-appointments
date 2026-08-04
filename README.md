@@ -97,6 +97,32 @@ docker compose run --rm node
 | `redis` | `redis:alpine` | `6379` | Cache y sesiones |
 | `node` | `node:16-alpine` | - | Compilación de assets (bajo demanda, no arranca solo) |
 
+## Rendimiento y recarga de código
+
+**Después de editar código PHP hay que recargar php-fpm** para que el cambio
+se vea:
+
+```bash
+docker compose kill -s SIGUSR2 app
+```
+
+El motivo es que OPcache está configurado con `validate_timestamps=0`. Sobre
+el bind mount de Windows, dejar que PHP verifique en cada request si los
+~1000 archivos de Laravel cambiaron cuesta el 95% del tiempo de respuesta:
+
+| Configuración | `/login` | `/home` |
+|---------------|----------|---------|
+| Sin OPcache (original) | 1.95s | 2.10s |
+| OPcache validando timestamps | 1.42s | 1.62s |
+| **OPcache sin validar (actual)** | **0.08s** | **0.14s** |
+
+Los cambios en Blade, JS, CSS y `.env` **no** necesitan la recarga: solo el
+código PHP (controladores, modelos, rutas, config).
+
+Si preferís que los cambios se detecten solos y no te importa la lentitud,
+poné `opcache.validate_timestamps=1` en `php/opcache.ini` y reconstruí con
+`docker compose up -d --build app`.
+
 ## Notas
 
 - Los archivos de código se montan como bind mount, por lo que los cambios locales se reflejan sin reconstruir.
