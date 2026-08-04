@@ -52,9 +52,9 @@ El contenedor `node` compila los assets por separado (`npm install && npm run de
 
 | Nombre | Email | Rol | Password |
 |--------|-------|-----|----------|
-| Agustin Blanco | test@gmail.com | admin | test123 |
-| Paciente 1 | paciente1@gmail.com | patient | agux1994 |
-| Medico 1 | medico1@gmail.com | doctor | agux1994 |
+| Admin Test | test@gmail.com | admin | test123 |
+| Paciente 1 | paciente1@gmail.com | patient | test123 |
+| Medico 1 | medico1@gmail.com | doctor | test123 |
 
 ## Comandos útiles
 

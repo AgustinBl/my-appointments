@@ -13,7 +13,7 @@ class UsersTableSeeder extends Seeder
     public function run()
     {
     	User::create([
-	    	'name' => 'Agustin Blanco',
+	    	'name' => 'Admin Test',
 	        'email' => 'test@gmail.com',
 	        'password' => bcrypt('test123'), // password
 	        'role' =>	'admin'
@@ -22,14 +22,14 @@ class UsersTableSeeder extends Seeder
         User::create([
             'name' => 'Paciente 1',
             'email' => 'paciente1@gmail.com',
-            'password' => bcrypt('agux1994'), // password
+            'password' => bcrypt('test123'), // password
             'role' =>   'patient' 
         ]);
 
         User::create([
             'name' => 'Medico 1',
             'email' => 'medico1@gmail.com',
-            'password' => bcrypt('agux1994'), // password
+            'password' => bcrypt('test123'), // password
             'role' =>   'doctor' 
         ]);
        	factory(App\User::class, 50)->states('patient')->create();
