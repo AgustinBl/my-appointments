@@ -4,75 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "26cf60c8992924f657070d07cbdc38d1",
+    "content-hash": "7669ccdc0945b40cdf42e89022fc58e4",
     "packages": [
-        {
-            "name": "JCarlosR/larajwt",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/JCarlosR/larajwt.git",
-                "reference": "8cc037717b1096d5e80f7a8eca3b26da1b5afc3d"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/JCarlosR/larajwt/zipball/8cc037717b1096d5e80f7a8eca3b26da1b5afc3d",
-                "reference": "8cc037717b1096d5e80f7a8eca3b26da1b5afc3d",
-                "shasum": ""
-            },
-            "require": {
-                "laravel/framework": "^5.5|^6",
-                "lcobucci/jwt": "^3.2",
-                "php": ">=7.0"
-            },
-            "require-dev": {
-                "mockery/mockery": "~1.0",
-                "orchestra/testbench": "^3.5"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "MiladRahimi\\LaraJwt\\Providers\\ServiceProvider"
-                    ],
-                    "aliases": {
-                        "JwtAuth": "MiladRahimi\\LaraJwt\\Facades\\JwtAuth"
-                    }
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "MiladRahimi\\LaraJwt\\": "src/MiladRahimi/LaraJwt/",
-                    "MiladRahimi\\LaraJwtTests\\": "tests/"
-                }
-            },
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Milad Rahimi",
-                    "email": "info@miladrahimi.com",
-                    "homepage": "http://miladrahimi.com",
-                    "role": "Developer"
-                }
-            ],
-            "description": "JWT authentication tools and guard for Laravel projects",
-            "homepage": "https://github.com/JCarlosR/larajwt",
-            "keywords": [
-                "API",
-                "Authentication",
-                "Guard",
-                "JWT",
-                "Laravel",
-                "REST"
-            ],
-            "support": {
-                "email": "info@miladrahimi.com",
-                "source": "https://github.com/JCarlosR/larajwt/issues"
-            },
-            "time": "2019-11-07T20:03:35+00:00"
-        },
         {
             "name": "dnoegel/php-xdg-base-dir",
             "version": "v0.1.1",
@@ -740,53 +673,6 @@
             "time": "2018-09-29T18:48:56+00:00"
         },
         {
-            "name": "kawankoding/laravel-fcm",
-            "version": "0.2.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/kawankoding/laravel-fcm.git",
-                "reference": "ab38c7a932aa3e7a41bf87d3aa23554dfc02d264"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/kawankoding/laravel-fcm/zipball/ab38c7a932aa3e7a41bf87d3aa23554dfc02d264",
-                "reference": "ab38c7a932aa3e7a41bf87d3aa23554dfc02d264",
-                "shasum": ""
-            },
-            "require": {
-                "illuminate/support": "^5.1|^6.0",
-                "php": "^5.6|^7.0"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "Kawankoding\\Fcm\\FcmServiceProvider"
-                    ],
-                    "aliases": {
-                        "Fcm": "Kawankoding\\Fcm\\FcmFacade"
-                    }
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Kawankoding\\Fcm\\": "src/"
-                },
-                "files": [
-                    "src/helpers.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "authors": [
-                {
-                    "name": "Muhammad Amirul Ihsan",
-                    "email": "muh.amirul.ihsan@gmail.com"
-                }
-            ],
-            "description": "A package to send Firebase notification cross Laravel Application",
-            "time": "2020-02-29T10:03:48+00:00"
-        },
-        {
             "name": "laravel/framework",
             "version": "v6.18.1",
             "source": {
@@ -1049,61 +935,6 @@
                 "ui"
             ],
             "time": "2020-02-13T21:12:28+00:00"
-        },
-        {
-            "name": "lcobucci/jwt",
-            "version": "3.3.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/lcobucci/jwt.git",
-                "reference": "a11ec5f4b4d75d1fcd04e133dede4c317aac9e18"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/lcobucci/jwt/zipball/a11ec5f4b4d75d1fcd04e133dede4c317aac9e18",
-                "reference": "a11ec5f4b4d75d1fcd04e133dede4c317aac9e18",
-                "shasum": ""
-            },
-            "require": {
-                "ext-mbstring": "*",
-                "ext-openssl": "*",
-                "php": "^5.6 || ^7.0"
-            },
-            "require-dev": {
-                "mikey179/vfsstream": "~1.5",
-                "phpmd/phpmd": "~2.2",
-                "phpunit/php-invoker": "~1.1",
-                "phpunit/phpunit": "^5.7 || ^7.3",
-                "squizlabs/php_codesniffer": "~2.3"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "3.1-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Lcobucci\\JWT\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Luís Otávio Cobucci Oblonczyk",
-                    "email": "lcobucci@gmail.com",
-                    "role": "Developer"
-                }
-            ],
-            "description": "A simple library to work with JSON Web Token and JSON Web Signature",
-            "keywords": [
-                "JWS",
-                "jwt"
-            ],
-            "time": "2019-05-24T18:30:49+00:00"
         },
         {
             "name": "league/commonmark",
@@ -5469,5 +5300,6 @@
     "platform": {
         "php": "^7.2"
     },
-    "platform-dev": []
+    "platform-dev": [],
+    "plugin-api-version": "1.1.0"
 }

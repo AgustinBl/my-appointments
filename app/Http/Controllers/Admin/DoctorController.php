@@ -16,7 +16,7 @@ class DoctorController extends Controller
      */
     public function index()
     {
-        $doctors = User::doctors()->paginate(5);
+        $doctors = User::doctors()->with(['specialties', 'workDays'])->paginate(5);
         return view('doctors.index', compact('doctors'));
     }
 

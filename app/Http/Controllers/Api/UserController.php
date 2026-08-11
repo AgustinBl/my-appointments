@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use Auth;
-use JwtAuth;
 
 class UserController extends Controller
 {
@@ -22,7 +21,5 @@ class UserController extends Controller
     	$user->phone = $request->phone;
     	$user->address = $request->address;
     	$user->save();
-
-    	JwtAuth::clearCache($user);
     }
 }

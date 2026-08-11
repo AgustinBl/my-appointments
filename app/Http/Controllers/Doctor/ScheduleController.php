@@ -10,12 +10,12 @@ use Carbon\Carbon;
 class ScheduleController extends Controller
 {
 	private $days = [
-    		'Lunes', 'Martes', 'Miercoles','Jueves','Viernes','Sabado', 'Domingo'
+    		'Lunes', 'Martes', 'Miércoles','Jueves','Viernes','Sábado', 'Domingo'
     	];
 
     public function edit()
     {
-    	$workDays = WorkDay::where('user_id', auth()->id())->get();
+    	$workDays = WorkDay::where('user_id', auth()->id())->orderBy('day')->get();
 
         if(count($workDays) > 0) {
             $workDays->map(function($workDay){
@@ -34,16 +34,25 @@ class ScheduleController extends Controller
             for ($i=0; $i<7; ++$i)
                 $workDays->push(new WorkDay());
         }
- 
-    	
-    	//dd($workDays->toArray());
+
     	$days = $this->days;
-    	return view('schedule', compact('workDays','days'));
+
+        // Cuántas franjas de 30 minutos genera cada día. El mismo número
+        // alimenta la columna, el gráfico y el total del encabezado.
+        $slots = $workDays->map(function ($workDay) {
+            return $workDay->active
+                ? $this->countSlots($workDay->morning_start, $workDay->morning_end)
+                  + $this->countSlots($workDay->afternoon_start, $workDay->afternoon_end)
+                : 0;
+        })->all();
+
+        $totalSlots = array_sum($slots);
+
+    	return view('schedule', compact('workDays','days','slots','totalSlots'));
     }
 
     public function store(Request $request)
     {
-    	//dd($request->all());
     	$active = $request->input('active') ?: [];
     	$morning_start = $request->input('morning_start');
     	$morning_end = $request->input('morning_end');
@@ -51,28 +60,28 @@ class ScheduleController extends Controller
     	$afternoon_end = $request->input('afternoon_end');
 
     	$errors = [];
-    	
 
     	for($i=0; $i<7; ++$i) {
 
     		if($morning_start[$i] > $morning_end[$i] ){
-    			$errors []='La horas del turno mañana son inconsistentes para el día ' . $this->days[$i] .'.';
+    			$errors []='Las horas del turno mañana son inconsistentes para el día ' . $this->days[$i] .'.';
     		}
     		if($afternoon_start[$i] > $afternoon_end[$i]){
-    			$errors []='La horas del turno tarde son inconsistentes para el día ' . $this->days[$i] .'.';
+    			$errors []='Las horas del turno tarde son inconsistentes para el día ' . $this->days[$i] .'.';
     		}
-  
+
 	    	WorkDay::updateOrCreate(
-	    		[	    
+	    		[
 	    			'day' => $i,
 				    'user_id' => auth()->id(),
 	    		],
-	    		[		    
-				    'active' => in_array($i, $active),
-				    
+	    		[
+	    			// El control segmentado manda "1" o "0" por día.
+				    'active' => isset($active[$i]) && $active[$i] == '1',
+
 				    'morning_start' => $morning_start[$i],
 				    'morning_end' =>$morning_end[$i],
-				    
+
 				    'afternoon_start' =>$afternoon_start[$i],
 				    'afternoon_end' =>$afternoon_end[$i]
 	    		]
@@ -81,8 +90,21 @@ class ScheduleController extends Controller
 
 	    if(count($errors) > 0)
 	    	return back()->with(compact('errors'));
-	    
-	    $notification = 'Los cambios se han guardado correctamente.';
+
+	    $notification = 'Guardamos tu horario. Los pacientes ya pueden reservar sobre estas ventanas.';
 	    return back()->with(compact('notification'));
+    }
+
+    /** Franjas de 30 minutos que entran en una ventana. */
+    private function countSlots($start, $end)
+    {
+        if (! $start || ! $end) {
+            return 0;
+        }
+
+        $start = new Carbon($start);
+        $end = new Carbon($end);
+
+        return $start < $end ? (int) floor($start->diffInMinutes($end) / 30) : 0;
     }
 }

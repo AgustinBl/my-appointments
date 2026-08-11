@@ -1,76 +1,89 @@
 @extends('layouts.panel')
 
-@section('styles')
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.2/css/bootstrap-select.min.css">
-@endsection
+@section('kicker', 'Médicos · alta')
+@section('page-title', 'Nuevo médico')
+@section('page-context', 'Después del alta, el médico carga su horario de atención y recién ahí empieza a recibir reservas.')
 
 @section('content')
-    <div class="card shadow">
-      <div class="card-header border-0">
-        <div class="row align-items-center">
-          <div class="col">
-            <h3 class="mb-0">Nuevo médico</h3>
-          </div>
-          <div class="col text-right">
-            <a href="{{ url('doctors') }}" class="btn btn-sm btn-default">
-            Cancelar y volver
-            </a>
-          </div>
-        </div>
-      </div>
-      <div class="card-body">
+
+  <form action="{{ url('doctors') }}" method="post">
+    @csrf
+
+    <div class="grid-side grid-side--md">
+      <div class="stack" style="gap: 20px;">
+
         @if ($errors->any())
-        <div class="alert alert-danger" role="alert">
-          <ul>
-          @foreach ($errors->all() as $error)
-            <li>{{ $error }}</li>
-          @endforeach
-          </ul>
-        </div>
+          <div class="notice notice--warn">
+            <span class="notice__dot">!</span>
+            <span>
+              @foreach ($errors->all() as $error)
+                {{ $error }}@if(!$loop->last)<br>@endif
+              @endforeach
+            </span>
+          </div>
         @endif
 
-        <form action="{{ url('doctors') }}" method="post">
-          @csrf
-          <div class="form-group">
-            <label for="name">Nombre del médico</label>
-            <input type="text" name="name" class="form-control" value="{{ old('name') }}" >
+        <section class="card card--raised card-pad">
+          <h4>Datos personales</h4>
+          <div class="form-grid-2" style="margin-top: 18px;">
+            <div class="field">
+              <label for="name">Nombre y apellido</label>
+              <input type="text" name="name" id="name" class="form-control"
+                     value="{{ old('name') }}" placeholder="Dra. Carla Miranda" required>
+            </div>
+            <div class="field">
+              <label for="dni">DNI</label>
+              <input type="text" name="dni" id="dni" class="form-control"
+                     value="{{ old('dni') }}" placeholder="29740318">
+            </div>
+            <div class="field">
+              <label for="phone">Teléfono</label>
+              <input type="text" name="phone" id="phone" class="form-control"
+                     value="{{ old('phone') }}" placeholder="11 2255 7743">
+            </div>
+            <div class="field">
+              <label for="address">Dirección</label>
+              <input type="text" name="address" id="address" class="form-control"
+                     value="{{ old('address') }}" placeholder="Av. Cabildo 2200, CABA">
+            </div>
           </div>
-          <div class="form-group">
-            <label for="email">E-mail</label>
-            <input type="text" name="email" class="form-control">
-          </div>
-          <div class="form-group">
-            <label for="dni">DNI</label>
-            <input type="text" name="dni" class="form-control">
-          </div>
-          <div class="form-group">
-            <label for="addres">Dirección</label>
-            <input type="text" name="addres" class="form-control">
-          </div>
-          <div class="form-group">
-            <label for="phone">Teléfono</label>
-            <input type="text" name="phone" class="form-control">
-          </div>
-          <div class="form-group">
-            <label for="password">Contraseña</label>
-            <input type="text" name="password" class="form-control" required >
-          </div>
-          <div class="form-group">
-            <label for="specialties">Especialidades</label>
-            <select name="specialties[]" id="specialties" class="form-control selectpicker" data-style="btn-default" multiple title="Seleccione una o varias">
+        </section>
+
+        <section class="card card--raised card-pad">
+          <h4>Especialidades</h4>
+          <p class="card-note" style="margin-bottom: 18px;">
+            Los pacientes lo van a encontrar buscando por estas especialidades.
+          </p>
+
+          @if($specialties->isEmpty())
+            <p class="field-hint">
+              No hay especialidades cargadas.
+              <a href="{{ url('specialties') }}">Creá la primera</a> para poder asignarla.
+            </p>
+          @else
+            <div class="check-grid">
               @foreach ($specialties as $specialty)
-              <option value="{{ $specialty->id }}">{{ $specialty->name }}</option>
+                <label class="check-row">
+                  <input type="checkbox" name="specialties[]" value="{{ $specialty->id }}"
+                         @if(in_array($specialty->id, old('specialties', []))) checked @endif>
+                  <span class="check__dot"></span>
+                  <span>{{ $specialty->name }}</span>
+                </label>
               @endforeach
-            </select>
-          </div>
-          <button type="submit" class="btn btn-primary">
-            Guardar
-          </button>
-        </form>
+            </div>
+          @endif
+        </section>
+
+        @include('doctors._access')
+
       </div>
+
+      @include('doctors._before-save', ['label' => 'Guardar el médico'])
     </div>
+  </form>
+
 @endsection
 
 @section('scripts')
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.2/js/bootstrap-select.min.js"></script>
+  @include('doctors._password-script')
 @endsection

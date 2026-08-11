@@ -41,6 +41,10 @@ Route::middleware(['auth', 'doctor'])->namespace('Doctor')->group(function () {
 	Route::get('/schedule', 'ScheduleController@edit');
 	Route::post('/schedule', 'ScheduleController@store');
 
+	// Mi día: la agenda sobre el riel de franjas
+	Route::get('/my-day', 'DayController@index');
+	Route::post('/my-day/confirm-all', 'DayController@confirmAll');
+
 });
 
 Route::middleware('auth')->group(function () {

@@ -1,10 +1,11 @@
- <li class="nav-item">
-  <a class="nav-link" href="/appointments/create">
-    <i class="ni ni-send text-primary"></i> Reservar cita
-  </a>
-</li>
-<li class="nav-item">
-  <a class="nav-link" href="/appointments">
-    <i class="ni ni-time-alarm text-orange"></i> Mis citas
-  </a>
-</li>
+<ul class="navbar-nav">
+  <li class="nav-item">
+    <a class="nav-link {{ request()->is('home') ? 'is-active' : '' }}" href="{{ url('/home') }}">Resumen</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {{ request()->is('appointments*') && ! request()->is('appointments/create') ? 'is-active' : '' }}" href="{{ url('/appointments') }}">Mis citas</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {{ request()->is('appointments/create') ? 'is-active' : '' }}" href="{{ url('/appointments/create') }}">Reservar una cita</a>
+  </li>
+</ul>

@@ -123,6 +123,82 @@ Si preferís que los cambios se detecten solos y no te importa la lentitud,
 poné `opcache.validate_timestamps=1` en `php/opcache.ini` y reconstruí con
 `docker compose up -d --build app`.
 
+## Notificaciones push (Firebase Cloud Messaging)
+
+La app usa la **API HTTP v1** de FCM. La API legacy (`fcm.googleapis.com/fcm/send`
+con `FCM_SERVER_KEY`) fue dada de baja por Google en junio de 2024, así que ese
+server key ya no sirve: ahora hay que usar la *service account* del proyecto.
+
+### Configuración
+
+1. En [Firebase Console](https://console.firebase.google.com) → **Configuración
+   del proyecto** → **Cuentas de servicio** → **Generar nueva clave privada**.
+   Se descarga un JSON.
+2. Guardarlo como `storage/app/firebase/service-account.json` (esa carpeta está
+   en `.gitignore`: la clave privada no va al repo).
+3. Recargar php-fpm: `docker compose kill -s SIGUSR2 app`.
+
+Si preferís otra ubicación, o pasar el JSON entero por variable de entorno
+(útil en producción):
+
+```env
+FCM_CREDENTIALS=/ruta/al/service-account.json
+# o bien
+FCM_CREDENTIALS='{"type":"service_account","project_id":"...","private_key":"..."}'
+```
+
+`FCM_PROJECT_ID` es opcional: si no está, se toma el `project_id` del JSON.
+
+### Cómo funciona
+
+- `App\Services\Fcm` firma un JWT con la clave privada, lo canjea por un access
+  token OAuth2 (cacheado ~1 hora) y postea a
+  `https://fcm.googleapis.com/v1/projects/{project}/messages:send`.
+- La v1 no soporta multicast: el envío masivo desde `/home` (form "Notificación
+  general") manda un request por dispositivo.
+- Los tokens que Firebase reporta como `UNREGISTERED`/`NOT_FOUND` (app
+  desinstalada o token rotado) se borran solos de `users.device_token`.
+- Ningún error de FCM corta el flujo: si falla el envío, la cita se cancela o
+  confirma igual y el problema queda en `storage/logs/laravel.log`.
+
+Sin credenciales configuradas la app no rompe: el form de notificación general
+avisa que falta `FCM_CREDENTIALS` y los envíos individuales devuelven `false`.
+
+## Autenticación de la API (JWT)
+
+Las rutas de `routes/api.php` detrás de `auth:api` se autentican con un JWT en
+el header `Authorization: Bearer <token>`. La implementación es propia y vive en
+`app/Auth/`:
+
+| Clase | Responsabilidad |
+| --- | --- |
+| `JwtCodec` | Arma y verifica el token: base64url + firma HMAC-SHA512. |
+| `JwtManager` | Emite tokens, valida los claims (`exp`, `nbf`, `iss`, `aud`) y revoca por `jti`. |
+| `JwtGuard` | Driver `jwt` de Laravel; resuelve el usuario del token. |
+
+Se registra en `App\Providers\JwtServiceProvider` y lo usa el guard `api` de
+`config/auth.php`. Los parámetros están en `config/jwt.php`; la clave de firma
+sale de `JWT_KEY` o, en su defecto, de `APP_KEY`.
+
+Antes esto lo resolvía el paquete `JCarlosR/larajwt`, que se removió: estaba
+clavado a `dev-master`, sin mantenimiento desde 2019, y llamaba a `starts_with()`,
+un helper que Laravel eliminó en la versión 6 — con lo cual toda ruta autenticada
+respondía 500. Se fue con él su única dependencia, `lcobucci/jwt` 3.3.1.
+
+El formato del token no cambió, así que los que la app móvil ya tenía guardados
+siguen siendo válidos.
+
+> `logout` revoca el token anotando su `jti` en la caché hasta que expire. Como
+> la caché es Redis y no persiste entre reinicios, un `docker compose down`
+> vuelve a habilitar tokens deslogueados que todavía no hayan vencido.
+
+Los tests de esta parte están en `tests/Unit/JwtTest.php` y no necesitan base de
+datos ni contenedor:
+
+```bash
+docker compose exec app ./vendor/bin/phpunit --testsuite Unit --testdox
+```
+
 ## Notas
 
 - Los archivos de código se montan como bind mount, por lo que los cambios locales se reflejan sin reconstruir.

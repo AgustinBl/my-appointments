@@ -1,42 +1,70 @@
+@php
+  $labels = ['admin' => 'Recepción', 'doctor' => 'Médico', 'patient' => 'Paciente'];
+
+  $upcoming = $confirmedAppointments->total() + $pendingAppointments->total();
+  $next = $confirmedAppointments->first() ?: $pendingAppointments->first();
+@endphp
+
 @extends('layouts.panel')
 
-@section('content')
-    <div class="card shadow">
-      <div class="card-header border-0">
-        <div class="row align-items-center">
-          <div class="col">
-            <h3 class="mb-0">Mis citas</h3>
-          </div>
-        </div>
-      </div>
-      <div class="card-body">
-        @if(session('notification'))
-        <div class="alert alert-success" role="alert">
-          {{ session('notification') }}
-        </div>
-        @endif
-        <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
-          <li class="nav-item">
-            <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#confirmed-appointments" role="tab" aria-controls="pills-home" aria-selected="true">Mis próximas citas</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pending-appointments" role="tab" aria-selected="false">Citas por confirmar</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" id="pills-home-tab" data-toggle="pill" href="#old-appointments" role="tab" aria-controls="pills-home" aria-selected="true">Historial de citas</a>
-          </li>
-        </ul>
-      </div>
+@section('kicker', $labels[$role] ?? '')
+@section('page-title', $role == 'admin' ? 'Citas médicas' : 'Mis citas')
 
-      <div class="tab-content" id="pills-tabContent">
-        <div class="tab-pane fade show active" id="confirmed-appointments" role="tabpanel" aria-labelledby="pills-home-tab">
-        @include('appointments.tables.confirmed')</div>
-        <div class="tab-pane fade" id="pending-appointments" role="tabpanel">
-        @include('appointments.tables.pending')</div>
-        <div class="tab-pane fade" id="old-appointments" role="tabpanel">
-        @include('appointments.tables.old')</div>
-      </div>
-      
-      
+@section('page-context')
+  @if($role == 'admin')
+    Todas las citas del consultorio. Las pestañas separan lo que hay que hacer de lo que ya está.
+  @elseif($upcoming)
+    Tenés {{ $upcoming }} {{ $upcoming == 1 ? 'cita' : 'citas' }} por delante.@if($next) La más próxima es {{ $next->relative_label }}.@endif
+  @else
+    Por ahora no tenés citas por delante.
+  @endif
+@endsection
+
+@section('page-actions')
+  @if($role == 'patient')
+    <a href="{{ url('/appointments/create') }}" class="btn btn-primary">Reservar una cita</a>
+  @elseif($role == 'doctor')
+    <a href="{{ url('/my-day') }}" class="btn btn-secondary">Ver mi día</a>
+  @endif
+@endsection
+
+@section('content')
+
+  @if(session('notification'))
+    <div class="alert alert-success mb-4">{{ session('notification') }}</div>
+  @endif
+
+  <ul class="tabs" id="appointments-tab" role="tablist">
+    <li class="nav-item">
+      <a class="nav-link active" id="tab-confirmed" data-toggle="pill" href="#confirmed-appointments"
+         role="tab" aria-controls="confirmed-appointments" aria-selected="true">
+        Confirmadas <span class="n">{{ $confirmedAppointments->total() }}</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" id="tab-pending" data-toggle="pill" href="#pending-appointments"
+         role="tab" aria-controls="pending-appointments" aria-selected="false">
+        Por confirmar <span class="n">{{ $pendingAppointments->total() }}</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" id="tab-old" data-toggle="pill" href="#old-appointments"
+         role="tab" aria-controls="old-appointments" aria-selected="false">
+        Historial <span class="n">{{ $oldAppointments->total() }}</span>
+      </a>
+    </li>
+  </ul>
+
+  <div class="tab-content" id="appointments-tabContent">
+    <div class="tab-pane fade show active" id="confirmed-appointments" role="tabpanel" aria-labelledby="tab-confirmed">
+      @include('appointments.tables.confirmed')
     </div>
+    <div class="tab-pane fade" id="pending-appointments" role="tabpanel" aria-labelledby="tab-pending">
+      @include('appointments.tables.pending')
+    </div>
+    <div class="tab-pane fade" id="old-appointments" role="tabpanel" aria-labelledby="tab-old">
+      @include('appointments.tables.old')
+    </div>
+  </div>
+
 @endsection

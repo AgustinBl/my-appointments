@@ -1,27 +1,35 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Milad Rahimi <info@miladrahimi.com>
- * Date: 9/19/17
- * Time: 14:40
- */
 
 return [
 
-    // Secret key to sign tokens
-    'key' => env('JWT_KEY', env('APP_KEY', 'your key')),
+    /*
+    |--------------------------------------------------------------------------
+    | Clave de firma
+    |--------------------------------------------------------------------------
+    |
+    | Se usa tal cual (incluido el prefijo "base64:" de APP_KEY) como secreto
+    | HMAC-SHA512. Cambiarla invalida todos los tokens ya emitidos.
+    |
+    */
 
-    // Token time-to-live in seconds (default 30 days)
+    'key' => env('JWT_KEY', env('APP_KEY')),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Vida del token, en segundos
+    |--------------------------------------------------------------------------
+    |
+    | 30 dias. Como no hay refresh tokens, este es el tiempo que el usuario
+    | de la app movil sigue logueado sin volver a escribir la contrasena.
+    |
+    */
+
     'ttl' => 60 * 60 * 24 * 30,
 
-    // Token issuer (your app name)
-    'issuer' => env('JWT_ISSUER', env('APP_NAME', 'your app')),
+    // Claims "iss" y "aud". Se validan en cada request, asi que cambiarlos
+    // tambien invalida los tokens ya emitidos.
+    'issuer' => env('JWT_ISSUER', env('APP_NAME', 'MyAppointments')),
 
-    // Token audience (your api customer)
     'audience' => env('JWT_AUDIENCE', ''),
-
-    // Set true if you have multiple authentication for multiple models
-    // It ensures that token for a model won't be valid for another models
-    'model_safe' => false,
 
 ];

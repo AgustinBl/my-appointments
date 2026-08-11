@@ -5,29 +5,47 @@ namespace App\Http\Controllers\Admin;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
+use App\Services\Fcm;
 use App\User;
 
 class FirebaseController extends Controller
 {
-    public function sendAll(Request $request)
+    public function sendAll(Request $request, Fcm $fcm)
     {
-    	$recipients = User::whereNotNull('device_token')
-    	->pluck('device_token')->toArray();
-    	//dd($recipients);
+        $data = $request->validate([
+            'title' => 'required|string|max:255',
+            'body' => 'required|string|max:1000',
+        ]);
 
-    	$recipients_simple = array_values(array_unique($recipients));
+        if (! $fcm->isConfigured()) {
+            $notification = 'Falta configurar las credenciales de Firebase (FCM_CREDENTIALS).';
+            return back()->with(compact('notification'));
+        }
 
-    	fcm()
-		    ->to($recipients_simple) // $recipients must an array
-		    ->priority('high')
-		    ->timeToLive(0)
-		    ->notification([
-		        'title' => $request->input('title'),
-		        'body' => $request->input('body')
-		    ])
-		    ->send();
+        $recipients = User::whereNotNull('device_token')
+            ->pluck('device_token')
+            ->toArray();
 
-		$notification = 'Notificación enviada a todos los usuarios (Android).';
-		return back()->with(compact('notification'));
+        if (! $recipients) {
+            $notification = 'No hay dispositivos registrados para notificar.';
+            return back()->with(compact('notification'));
+        }
+
+        // La API v1 manda de a un dispositivo: sendToTokens ya deduplica.
+        $result = $fcm->sendToTokens($recipients, $data['title'], $data['body']);
+
+        // Tokens que Firebase reporto como muertos: los sacamos de la base.
+        if ($result['invalid_tokens']) {
+            User::whereIn('device_token', $result['invalid_tokens'])
+                ->update(['device_token' => null]);
+        }
+
+        $notification = "Notificación enviada a {$result['sent']} dispositivo(s).";
+
+        if ($result['failed']) {
+            $notification .= " {$result['failed']} envío(s) fallaron: {$result['error']}";
+        }
+
+        return back()->with(compact('notification'));
     }
 }

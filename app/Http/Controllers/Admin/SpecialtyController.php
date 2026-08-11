@@ -11,7 +11,8 @@ class SpecialtyController extends Controller
 	
     public function index()
     {
-    	$specialties = Specialty::all();
+        // El conteo de médicos dice a cuántos afecta borrar la especialidad.
+    	$specialties = Specialty::withCount('users')->orderBy('name')->get();
     	return view('specialties.index', compact('specialties'));
     }
 

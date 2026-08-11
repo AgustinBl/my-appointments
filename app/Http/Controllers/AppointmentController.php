@@ -16,42 +16,35 @@ class AppointmentController extends Controller
     public function index()
     {
         $role = auth()->user()->role;
-        // patient
-        // doctor
-        if($role == 'admin'){
-            $pendingAppointments = Appointment::where('status', 'Reservada')
-                ->paginate(10);
-            $confirmedAppointments = Appointment::where('status', 'Confirmada')
-                ->paginate(10);
-            $oldAppointments = Appointment::whereIn('status', ['Atendida', 'Cancelada'])
-                ->paginate(10);
 
-        } elseif($role == 'doctor'){
-            $pendingAppointments = Appointment::where('status', 'Reservada')
-                ->where('doctor_id', auth()->id())
-                ->paginate(10);
-            $confirmedAppointments = Appointment::where('status', 'Confirmada')
-                ->where('doctor_id', auth()->id())
-                ->paginate(10);
-            $oldAppointments = Appointment::whereIn('status', ['Atendida', 'Cancelada'])
-                ->where('doctor_id', auth()->id())
-                ->paginate(10);
+        $confirmedAppointments = $this->scoped($role, 'Confirmada')->paginate(10);
+        $pendingAppointments   = $this->scoped($role, 'Reservada')->paginate(10);
+        $oldAppointments       = $this->scoped($role, ['Atendida', 'Cancelada'])->paginate(10);
 
-        } elseif ($role == 'patient'){
-            $pendingAppointments = Appointment::where('status', 'Reservada')
-                ->where('patient_id', auth()->id())
-                ->paginate(10);
-            $confirmedAppointments = Appointment::where('status', 'Confirmada')
-                ->where('patient_id', auth()->id())
-                ->paginate(10);
-            $oldAppointments = Appointment::whereIn('status', ['Atendida', 'Cancelada'])
-                ->where('patient_id', auth()->id())
-                ->paginate(10);
+        return view('appointments.index',
+            compact('pendingAppointments', 'confirmedAppointments', 'oldAppointments', 'role'));
+    }
+
+    /**
+     * Citas visibles para el rol, filtradas por estado y ordenadas por fecha.
+     */
+    private function scoped($role, $status)
+    {
+        $query = Appointment::with(['specialty', 'doctor', 'patient'])
+            ->orderBy('schedule_date')
+            ->orderBy('schedule_time');
+
+        is_array($status)
+            ? $query->whereIn('status', $status)
+            : $query->where('status', $status);
+
+        if ($role == 'doctor') {
+            $query->where('doctor_id', auth()->id());
+        } elseif ($role == 'patient') {
+            $query->where('patient_id', auth()->id());
         }
-        
 
-        return view('appointments.index', 
-            compact('pendingAppointments', 'confirmedAppointments', 'oldAppointments','role'));
+        return $query;
     }
 
     public function show(Appointment $appointment)
@@ -62,36 +55,34 @@ class AppointmentController extends Controller
 
     public function create(ScheduleServiceInterface $scheduleService)
     {
-    	$specialties = Specialty::all();
+    	$specialties = Specialty::orderBy('name')->get();
 
         $specialtyId = old('specialty_id');
         if ($specialtyId) {
             $specialty = Specialty::find($specialtyId);
-            $doctors = $specialty->users;
+            $doctors = $specialty ? $specialty->users : collect();
         } else {
             $doctors = collect();
         }
 
-        
         $date = old('schedule_date');
         $doctorId = old('doctor_id');
-        if($date && $doctorId) {
-            $intervals = $scheduleService->getAvaliableIntervals($date, $doctorId);
-        } else {
-            $intervals = null;
-        }
-        
 
-    	return view('appointments.create', compact('specialties', 'doctors','intervals'));
+        // Franjas del día, con las tomadas incluidas para poder mostrarlas tachadas.
+        $day = ($date && $doctorId)
+            ? $scheduleService->getDayIntervals($date, $doctorId)
+            : null;
+
+    	return view('appointments.create', compact('specialties', 'doctors', 'day'));
     }
 
     public function store(StoreAppointment $request)
     {
-        
         Appointment::createForPatient($request, auth()->id());
 
-    	$notification = 'La cita se ha registrado correctamente!';
-    	return back()->with(compact('notification'));
+    	$notification = 'Reservamos tu cita. Queda por confirmar hasta que el consultorio la confirme.';
+
+    	return redirect('/appointments')->with(compact('notification'));
     }
 
     public function showCancelForm(Appointment $appointment)
@@ -115,24 +106,24 @@ class AppointmentController extends Controller
         }
 
         $appointment->status = 'Cancelada';
-        $saved = $appointment->save(); //update
+        $saved = $appointment->save();
 
         if($saved)
             $appointment->patient->sendFCM('Su cita se ha cancelado!');
 
-        $notification = 'La cita se ha cancelado exitosamente.';
+        $notification = 'La cita quedó cancelada y la franja volvió a estar disponible.';
         return redirect('/appointments')->with(compact('notification'));
     }
 
     public function postConfirm(Appointment $appointment)
     {
         $appointment->status = 'Confirmada';
-        $saved = $appointment->save(); //update
+        $saved = $appointment->save();
 
         if($saved)
             $appointment->patient->sendFCM('Su cita se ha confirmado!');
 
-        $notification = 'La cita se ha confirmado exitosamente.';
-        return redirect('/appointments')->with(compact('notification'));
+        $notification = 'Cita confirmada. Le avisamos al paciente.';
+        return back()->with(compact('notification'));
     }
 }

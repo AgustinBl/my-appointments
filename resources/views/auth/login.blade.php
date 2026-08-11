@@ -1,75 +1,59 @@
-@extends('layouts.form')
+@extends('layouts.form', ['blob' => 'login'])
 
-@section('title', 'Inicio de Sesión')
+@section('title', 'Iniciar sesión')
+@section('aside-title', 'Un consultorio ordenado empieza por la agenda.')
+@section('aside-lede', 'Reservá, confirmá y seguí cada cita sobre franjas de 30 minutos. Hasta 30 días hacia adelante.')
 
 @section('content')
 
-    <div class="container mt--8 pb-5">
-      <div class="row justify-content-center">
-        <div class="col-lg-5 col-md-7">
-          <div class="card bg-secondary shadow border-0">
-            <div class="card-body px-lg-5 py-lg-5">
-                 
-                @if($errors->any())
-                    <div class="text-center text-muted mb-4">
-                        <small>Oops! Se encontró un error.</small>
-                    </div>
-                    <div class="alert alert-danger" role="alert">
-                        {{ $errors->first() }}
-                    </div>
-                @else
-                    <div class="text-center text-muted mb-4">
-                        <small>Ingresar tus datos para iniciar sesión.</small>
-                    </div>
-                @endif
-              
-              <form role="form" method="POST" action="{{ route('login') }}">
-                 @csrf
-                <div class="form-group mb-3">
-                  <div class="input-group input-group-alternative">
-                    <div class="input-group-prepend">
-                      <span class="input-group-text"><i class="ni ni-email-83"></i></span>
-                    </div>
-                    <input class="form-control" placeholder="Email" type="email" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus>
-                         
-                  </div>
-                </div>
-                <div class="form-group">
-                  <div class="input-group input-group-alternative">
-                    <div class="input-group-prepend">
-                      <span class="input-group-text"><i class="ni ni-lock-circle-open"></i></span>
-                    </div>
-                    <input class="form-control" placeholder="Contraseña" type="password" name="password" required autocomplete="current-password">
-                        
-                  </div>
-                </div>
-                <div class="custom-control custom-control-alternative custom-checkbox">
-                  <input name="remember" class="custom-control-input" id=" remember" type="checkbox" {{ old('remember') ? 'checked' : '' }} >
-                  <label class="custom-control-label" for="remember">
-                    <span class="text-muted">Recordar sesión</span>
-                  </label>
-                </div>
-                <div class="text-center">
-                  <button type="submit" class="btn btn-primary my-4">Ingresar</button>
-                </div>
-              </form>
-            </div>
-          </div>
-          <div class="row mt-3">
-            <div class="col-6">
-                <a href="{{ route('password.request') }}" class="text-light">
-                    <small>¿Olvidaste tu contraseña?</small>
-                </a>
-            </div>
-            <div class="col-6 text-right">
-                <a href="{{ route('register') }}" class="text-light">
-                    <small>Crear nueva cuenta</small>
-                </a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+  <div>
+    <h3>Entrá a tu cuenta</h3>
+    <p class="auth__sub">Con el mail con el que te registraste.</p>
   </div>
+
+  @if($errors->any())
+    <div class="notice notice--warn">
+      <span class="notice__dot">!</span>
+      <span>Esas credenciales no coinciden con ninguna cuenta.</span>
+    </div>
+  @endif
+
+  @if(session('status'))
+    <div class="notice notice--ok">
+      <span class="notice__dot">✓</span>
+      <span>{{ session('status') }}</span>
+    </div>
+  @endif
+
+  <form method="POST" action="{{ route('login') }}" class="stack">
+    @csrf
+
+    <div class="field">
+      <label for="email">Correo electrónico</label>
+      <input id="email" class="form-control" type="email" name="email" value="{{ old('email') }}"
+             placeholder="nombre@correo.com" required autocomplete="email" autofocus>
+    </div>
+
+    <div class="field">
+      <label for="password">Contraseña</label>
+      <input id="password" class="form-control" type="password" name="password"
+             placeholder="••••••••" required autocomplete="current-password">
+    </div>
+
+    <div class="split">
+      <label class="check">
+        <input type="checkbox" name="remember" {{ old('remember') ? 'checked' : '' }}>
+        <span class="check__dot check__dot--box"></span>
+        <span>Recordarme</span>
+      </label>
+      <a href="{{ route('password.request') }}" style="font-size: 13px;">Olvidé mi contraseña</a>
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-block btn-lg-action">Entrar</button>
+  </form>
+
+  <p class="auth__alt">
+    ¿Primera vez acá? <a href="{{ route('register') }}">Creá tu cuenta de paciente</a>
+  </p>
 
 @endsection

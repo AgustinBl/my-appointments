@@ -1,15 +1,14 @@
-<li class="nav-item">
-  <a class="nav-link" href="/schedule">
-    <i class="ni ni-calendar-grid-58 text-primary"></i> Gestionar horario
-  </a>
-</li>
-<li class="nav-item">
-  <a class="nav-link" href="/appointments">
-    <i class="ni ni-time-alarm text-orange"></i> Mis citas
-  </a>
-</li>
-<li class="nav-item">
-  <a class="nav-link" href="/patients">
-    <i class="ni ni-satisfied text-primary"></i>Mis Pacientes
-  </a>
-</li>
+<ul class="navbar-nav">
+  <li class="nav-item">
+    <a class="nav-link {{ request()->is('home') ? 'is-active' : '' }}" href="{{ url('/home') }}">Resumen</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {{ request()->is('my-day') ? 'is-active' : '' }}" href="{{ url('/my-day') }}">Mi día</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {{ request()->is('appointments*') ? 'is-active' : '' }}" href="{{ url('/appointments') }}">Mis citas</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {{ request()->is('schedule*') ? 'is-active' : '' }}" href="{{ url('/schedule') }}">Horario de atención</a>
+  </li>
+</ul>

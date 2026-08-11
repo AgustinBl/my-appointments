@@ -1,62 +1,65 @@
 @extends('layouts.panel')
 
+@section('kicker', 'Pacientes · edición')
+@section('page-title', $patient->name)
+@section('page-context', 'Los cambios no afectan a las citas ya reservadas.')
+
 @section('content')
-    <div class="card shadow">
-      <div class="card-header border-0">
-        <div class="row align-items-center">
-          <div class="col">
-            <h3 class="mb-0">Editar paciente</h3>
-          </div>
-          <div class="col text-right">
-            <a href="{{ url('patients') }}" class="btn btn-sm btn-default">
-            Cancelar y volver
-            </a>
-          </div>
-        </div>
-      </div>
-      <div class="card-body">
+
+  <form action="{{ url('patients/'.$patient->id) }}" method="post">
+    @csrf
+    @method('PUT')
+
+    <div class="grid-side grid-side--md">
+      <div class="stack" style="gap: 20px;">
+
         @if ($errors->any())
-        <div class="alert alert-danger" role="alert">
-          <ul>
-          @foreach ($errors->all() as $error)
-            <li>{{ $error }}</li>
-          @endforeach
-          </ul>
-        </div>
+          <div class="notice notice--warn">
+            <span class="notice__dot">!</span>
+            <span>
+              @foreach ($errors->all() as $error)
+                {{ $error }}@if(!$loop->last)<br>@endif
+              @endforeach
+            </span>
+          </div>
         @endif
 
-        <form action="{{ url('patients/'.$patient->id) }}" method="post">
-          @csrf
-          @method('PUT')
-          <div class="form-group">
-            <label for="name">Nombre del paciente</label>
-            <input type="text" name="name" class="form-control" value="{{ old('name', $patient->name) }}">
+        <section class="card card--raised card-pad">
+          <h4>Datos personales</h4>
+          <div class="form-grid-2" style="margin-top: 18px;">
+            <div class="field">
+              <label for="name">Nombre y apellido</label>
+              <input type="text" name="name" id="name" class="form-control"
+                     value="{{ old('name', $patient->name) }}" required>
+            </div>
+            <div class="field">
+              <label for="dni">DNI</label>
+              <input type="text" name="dni" id="dni" class="form-control"
+                     value="{{ old('dni', $patient->dni) }}" placeholder="8 dígitos">
+            </div>
+            <div class="field">
+              <label for="phone">Teléfono</label>
+              <input type="text" name="phone" id="phone" class="form-control"
+                     value="{{ old('phone', $patient->phone) }}">
+            </div>
+            <div class="field">
+              <label for="address">Dirección</label>
+              <input type="text" name="address" id="address" class="form-control"
+                     value="{{ old('address', $patient->address) }}">
+            </div>
           </div>
-          <div class="form-group">
-            <label for="email">E-mail</label>
-            <input type="text" name="email" class="form-control" value="{{ old('email', $patient->email) }}" >
-          </div>
-          <div class="form-group">
-            <label for="dni">DNI</label>
-            <input type="text" name="dni" class="form-control" value="{{ old('dni', $patient->dni) }}" >
-          </div>
-          <div class="form-group">
-            <label for="address">Dirección</label>
-            <input type="text" name="addres" class="form-control" value="{{ old('address', $patient->address) }}" >
-          </div>
-          <div class="form-group">
-            <label for="phone">Teléfono</label>
-            <input type="text" name="phone" class="form-control" value="{{ old('phone', $patient->phone) }}" >
-          </div>
-          <div class="form-group">
-            <label for="password">Contraseña</label>
-            <input type="text" name="password" class="form-control">
-            <p>Ingrese un valor solo si desea modificar la contraseña</p>
-          </div>
-          <button type="submit" class="btn btn-primary">
-            Guardar
-          </button>
-        </form>
+        </section>
+
+        @include('patients._access')
+
       </div>
+
+      @include('patients._before-save', ['label' => 'Guardar los cambios'])
     </div>
+  </form>
+
+@endsection
+
+@section('scripts')
+  @include('doctors._password-script')
 @endsection
